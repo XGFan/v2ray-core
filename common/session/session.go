@@ -50,7 +50,8 @@ type Outbound struct {
 	// Target address of the outbound connection.
 	Target net.Destination
 	// Gateway address
-	Gateway net.Address
+	Gateway       net.Address
+	RoutingTarget net.Destination
 	// Domain resolver to use when dialing
 	Resolver func(ctx context.Context, domain string) net.Address
 }
