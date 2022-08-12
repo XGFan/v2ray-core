@@ -70,6 +70,9 @@ func (ctx *Context) GetTargetDomain() string {
 	if ctx.Outbound == nil || !ctx.Outbound.Target.IsValid() {
 		return ""
 	}
+	if ctx.Outbound.RoutingDomain != nil && ctx.Outbound.RoutingDomain.Family().IsDomain() {
+		return ctx.Outbound.RoutingDomain.Domain()
+	}
 	dest := ctx.Outbound.Target
 	if !dest.Address.Family().IsDomain() {
 		return ""

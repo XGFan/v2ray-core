@@ -48,7 +48,8 @@ type Inbound struct {
 // Outbound is the metadata of an outbound connection.
 type Outbound struct {
 	// Target address of the outbound connection.
-	Target net.Destination
+	RoutingDomain net.Address
+	Target        net.Destination
 	// Gateway address
 	Gateway net.Address
 }

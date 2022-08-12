@@ -219,11 +219,13 @@ func (d *DefaultDispatcher) Dispatch(ctx context.Context, destination net.Destin
 		result, err := sniffer(ctx, nil, true)
 		if err == nil {
 			content.Protocol = result.Protocol()
+			domain := result.Domain()
+			newError("sniffed domain: ", domain).WriteToLog(session.ExportIDToError(ctx))
 			if shouldOverride(result, sniffingRequest.OverrideDestinationForProtocol) {
-				domain := result.Domain()
-				newError("sniffed domain: ", domain).WriteToLog(session.ExportIDToError(ctx))
 				destination.Address = net.ParseAddress(domain)
 				ob.Target = destination
+			} else {
+				ob.RoutingDomain = net.ParseAddress(domain)
 			}
 		}
 		go d.routedDispatch(ctx, outbound, destination)
@@ -237,11 +239,15 @@ func (d *DefaultDispatcher) Dispatch(ctx context.Context, destination net.Destin
 			if err == nil {
 				content.Protocol = result.Protocol()
 			}
-			if err == nil && shouldOverride(result, sniffingRequest.OverrideDestinationForProtocol) {
+			if err == nil {
 				domain := result.Domain()
 				newError("sniffed domain: ", domain).WriteToLog(session.ExportIDToError(ctx))
-				destination.Address = net.ParseAddress(domain)
-				ob.Target = destination
+				if shouldOverride(result, sniffingRequest.OverrideDestinationForProtocol) {
+					destination.Address = net.ParseAddress(domain)
+					ob.Target = destination
+				} else {
+					ob.RoutingDomain = net.ParseAddress(domain)
+				}
 			}
 			d.routedDispatch(ctx, outbound, destination)
 		}()
